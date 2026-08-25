@@ -284,17 +284,21 @@ async function fetchAgriData() {
   box.innerHTML = `<p class="form-msg">Fetching…</p>`;
   try {
     const data = await api(`/agri/soil-moisture?latitude=${a.latitude}&longitude=${a.longitude}`);
+    if (state.selectedApplicant?.id !== a?.id) return;
     state.lastAgriData = data;
     const updated = document.getElementById("live-updated");
     if (updated) updated.textContent = `Observed ${data.observed_at || "just now"} · ${data.source}`;
+    const observedAt = data.observed_at ? escapeHtml(String(data.observed_at)) : "n/a";
     box.innerHTML = `
-      <div class="data-line"><span>Source</span><span>${data.source}</span></div>
-      <div class="data-line"><span>Observed at</span><span>${data.observed_at || "n/a"}</span></div>
+      <div class="data-line"><span>Source</span><span>${escapeHtml(String(data.source ?? ""))}</span></div>
+      <div class="data-line"><span>Observed at</span><span>${observedAt}</span></div>
       <div class="data-line"><span>Soil moisture</span><span>${data.soil_moisture_m3_m3 ?? "n/a"} m³/m³</span></div>
       <div class="data-line"><span>Soil temperature</span><span>${data.soil_temperature_c ?? "n/a"} °C</span></div>
-      <div class="data-line"><span>Risk flag</span><span>${data.risk_flag}</span></div>
+      <div class="data-line"><span>Precipitation</span><span>${data.precipitation_mm ?? "n/a"} mm</span></div>
+      <div class="data-line"><span>Risk flag</span><span>${escapeHtml(String(data.risk_flag ?? ""))}</span></div>
     `;
   } catch (err) {
+    if (state.selectedApplicant?.id !== a?.id) return;
     box.innerHTML = `<p class="form-msg error">${err.message}</p>`;
   }
 }
