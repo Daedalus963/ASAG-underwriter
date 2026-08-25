@@ -11,6 +11,7 @@ const state = {
   map: null,
   mapScriptPromise: null,
   liveRefreshTimer: null,
+  agriRequestGeneration: 0,
 };
 
 // ---------- helpers ----------
@@ -280,11 +281,12 @@ async function loadFarmMap(applicant) {
 
 async function fetchAgriData() {
   const a = state.selectedApplicant;
+  const generation = ++state.agriRequestGeneration;
   const box = document.getElementById("agri-result");
   box.innerHTML = `<p class="form-msg">Fetching…</p>`;
   try {
     const data = await api(`/agri/soil-moisture?latitude=${a.latitude}&longitude=${a.longitude}`);
-    if (state.selectedApplicant?.id !== a?.id) return;
+    if (state.selectedApplicant?.id !== a?.id || state.agriRequestGeneration !== generation) return;
     state.lastAgriData = data;
     const updated = document.getElementById("live-updated");
     if (updated) updated.textContent = `Observed ${data.observed_at || "just now"} · ${data.source}`;
@@ -298,7 +300,7 @@ async function fetchAgriData() {
       <div class="data-line"><span>Risk flag</span><span>${escapeHtml(String(data.risk_flag ?? ""))}</span></div>
     `;
   } catch (err) {
-    if (state.selectedApplicant?.id !== a?.id) return;
+    if (state.selectedApplicant?.id !== a?.id || state.agriRequestGeneration !== generation) return;
     box.innerHTML = `<p class="form-msg error">${err.message}</p>`;
   }
 }
