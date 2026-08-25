@@ -1,133 +1,295 @@
-# ASAG-Underwriter — Field Ledger
+# ASAG Underwriter — Field Ledger
 
-A working prototype for the TVS Credit E.P.I.C 8.0 Analytics Challenge:
-a rural-credit assistance tool that combines live satellite/weather soil
-data with a speech-emotion classifier, wrapped in a real authenticated
-web app.
+A modern rural credit decisioning prototype that combines authenticated applicant workflows, live agronomic data, experimental voice analysis, and a transparent underwriting simulation in a single interactive product experience.
 
-## What's real vs. simulated (read this before presenting to a jury)
+## Overview
 
-| Component | Status |
-|---|---|
-| Auth (JWT, bcrypt password hashing, RBAC) | **Real.** Production-grade pattern, tested. |
-| Input validation, rate limiting, audio file safety checks | **Real.** |
-| Soil moisture / temperature data (`/agri/soil-moisture`) | **Real live API call** to Open-Meteo. |
-| Speech-emotion classifier (`/emotion/analyze`) | **Real ML**, once trained on RAVDESS (see below). Classifies into 8 broad emotions using standard acoustic features (MFCCs, pitch, energy). |
-| Final credit "risk score" and decision (`/credit/assess`) | **Simulated.** A transparent, hand-written rule set built for this demo — not trained on real repayment outcomes. Every response includes a `disclaimer` field and a line-by-line `explanation` of how the number was produced. |
-| "Emotion → intent to repay" link | **Not scientifically established.** The app labels this as an experimental signal everywhere it appears. Do not claim otherwise to the jury — the honest framing ("worth piloting and validating") is also the stronger one. |
+ASAG Underwriter helps a field agent or underwriter review a farmer applicant through a structured digital workflow:
 
-## Project layout
+- create and manage applicants
+- validate location and farm context
+- pull live land-condition data using Open-Meteo
+- upload audio for experimental emotional analysis
+- generate a transparent assessment brief with explainable scoring
 
-```
-asag_underwriter/
+The product is intentionally designed to balance usability, auditability, and honest disclosure. It demonstrates how multi-modal signals can be visualized and evaluated in a rural lending workflow without pretending the final score is a production underwriting model.
+
+---
+
+## Why this project matters
+
+Rural lending decisions often lack rich real-time context. This app brings together several relevant data streams into one operational dashboard:
+
+- geospatial context for the farm location
+- weather and soil inputs for current field conditions
+- applicant profile data for loan and crop context
+- voice-based behavioral signal for exploratory analysis
+- risk reasoning expressed in a transparent, explainable format
+
+This is not a black-box credit engine. It is a decision-support prototype built to help human underwriters review signals and understand how each factor contributes to the final recommendation.
+
+---
+
+## Core features
+
+### 1. Secure authentication and access control
+
+- user registration and login
+- JWT-based session handling
+- bcrypt password hashing
+- role-based access patterns for different user types
+
+### 2. Applicant intake workflow
+
+- applicant creation form
+- latitude and longitude validation
+- crop and farm-size details
+- loan amount tracking
+- applicant queue and selection workflow
+
+### 3. Live land intelligence
+
+- real-time soil moisture, temperature, and precipitation lookups
+- Open-Meteo integration for geographic coordinates
+- applicant-specific farm data refreshed in the interface
+- live status messaging for observed data sources
+
+### 4. Experimental audio signal analysis
+
+- audio file upload from the browser
+- validation and safety checks before processing
+- acoustic feature analysis using the project ML pipeline
+- emotion classification output with confidence and warning handling
+
+### 5. Transparent underwriting simulation
+
+- simulated assessment engine for prototype decisioning
+- detailed explanation of risk drivers
+- disclosed scoring logic and contribution factors
+- assessment result with clear interpretation and disclaimer
+
+### 6. Interactive dashboard UI
+
+- modern card-based layout
+- tabbed navigation
+- applicant workspace and assessment area
+- live map panel for field context
+- styled status, summary, and data lines
+
+---
+
+## Product flow
+
+The user experience is structured around a simple decisioning flow:
+
+1. Sign in or register
+2. Create a new applicant
+3. Review land and crop context
+4. Fetch live agronomic observations
+5. Upload applicant audio and analyze it
+6. Run a prototype underwriting assessment
+7. Review the explanation and risk summary
+
+---
+
+## Technology stack
+
+### Backend
+
+- Python
+- FastAPI
+- SQLAlchemy
+- Pydantic
+- JWT authentication
+- SlowAPI rate limiting
+- SQLite database for local development
+
+### Frontend
+
+- HTML
+- CSS
+- JavaScript
+- Fetch-based API communication
+- Embedded map context and dashboard UX
+
+### ML / analytics
+
+- Librosa-based acoustic feature extraction
+- speech-emotion classification pipeline
+- RAVDESS-compatible training flow
+- explainable prototype scoring logic
+
+---
+
+## Project structure
+
+```text
+ASAG_Underwriter/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py              # FastAPI app, CORS, rate-limit wiring
-│   │   ├── config.py            # env-based settings
-│   │   ├── database.py          # SQLAlchemy engine/session
-│   │   ├── models.py            # User, Applicant, Assessment tables
-│   │   ├── schemas.py           # Pydantic request/response models
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   ├── main.py
+│   │   ├── models.py
+│   │   ├── schemas.py
+│   │   ├── README.md
 │   │   ├── security/
-│   │   │   ├── auth.py          # JWT + bcrypt + RBAC dependency
-│   │   │   ├── rate_limit.py    # per-IP rate limiting
-│   │   │   └── validator.py     # audio upload safety checks
-│   │   ├── routers/
 │   │   │   ├── auth.py
-│   │   │   ├── applicants.py
-│   │   │   ├── agri.py          # live Open-Meteo integration
-│   │   │   ├── emotion.py       # audio upload + classification
-│   │   │   └── credit.py        # simulated, fully-disclosed scoring
+│   │   │   ├── rate_limit.py
+│   │   │   └── validator.py
+│   │   ├── routers/
+│   │   │   ├── agri.py
+│   │   │   ├-> applicants.py
+│   │   │   ├── auth.py
+│   │   │   ├── credit.py
+│   │   │   └── emotion.py
 │   │   └── ml/
-│   │       ├── feature_extraction.py   # librosa acoustic features
-│   │       ├── train_emotion_model.py  # trains on real RAVDESS data
-│   │       └── emotion_classifier.py   # loads model, runs inference
+│   │       ├── __init__.py
+│   │       ├── emotion_classifier.py
+│   │       ├── feature_extraction.py
+│   │       ├── train_emotion_model.py
+│   │       └── data/
 │   ├── requirements.txt
 │   └── .env.example
-└── frontend/
-    ├── index.html
-    ├── styles.css
-    └── app.js
+├── frontend/
+│   ├── app.js
+│   ├── index.html
+│   └── styles.css
+├── server.py
+├── README.md
+└── LICENSE
 ```
 
-## Running it
+---
+
+## Local setup
 
 ### 1. Backend
 
 ```bash
 cd backend
-python3 -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+python -m venv .venv
+
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+
+# macOS / Linux
+# source .venv/bin/activate
+
 pip install -r requirements.txt
-
-cp .env.example .env
-# Edit .env and set a real SECRET_KEY:
-python -c "import secrets; print(secrets.token_hex(32))"
-
-uvicorn app.main:app --reload --port 8000
 ```
 
-API docs available at `http://127.0.0.1:8000/docs` once running.
+Create a local environment configuration if needed and set your app secret.
 
-### 2. Train the real emotion classifier (optional but recommended)
+```bash
+# example flow
+copy .env.example .env
+```
 
-Without this step, `/emotion/analyze` still works but honestly reports
-`HEURISTIC_FALLBACK_UNTRAINED` instead of a real classification.
+Then start the API server:
 
-1. Download `Audio_Speech_Actors_01-24.zip` from the official RAVDESS
-   release: https://zenodo.org/record/1188976
-2. Unzip into `backend/app/ml/data/ravdess/`
-3. Run:
-   ```bash
-   cd backend
-   python -m app.ml.train_emotion_model
-   ```
+```bash
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
 
-### 3. Frontend
+API docs will be available at:
 
-The frontend is plain HTML/CSS/JS — no build step needed.
+- http://127.0.0.1:8000/docs
+- http://127.0.0.1:8000/redoc
+
+### 2. Frontend
+
+Serve the static web app from the frontend folder:
 
 ```bash
 cd frontend
-python3 -m http.server 5500
+python -m http.server 5500
 ```
 
-Open `http://127.0.0.1:5500`. It talks to the backend at
-`http://127.0.0.1:8000` by default — override by setting
-`window.ASAG_API_BASE` before `app.js` loads if you deploy the backend
-elsewhere.
+Then open:
 
-### Optional Google satellite map
+- http://localhost:5500
 
-The applicant workspace includes a Google Maps satellite-context panel. To
-embed it, add this before `app.js` in `frontend/index.html`:
+The frontend is configured to talk to the backend at `http://127.0.0.1:8000` by default.
+
+### 3. Optional map integration
+
+To enable the Google Maps satellite panel, add the key before the app script loads:
 
 ```html
-<script>window.ASAG_GOOGLE_MAPS_API_KEY = "YOUR_BROWSER_RESTRICTED_KEY";</script>
+<script>
+  window.ASAG_GOOGLE_MAPS_API_KEY = "YOUR_BROWSER_RESTRICTED_KEY";
+</script>
 ```
 
-Enable the **Maps JavaScript API** in Google Cloud and restrict the key to the
-frontend's allowed origins. The map provides satellite imagery and a farm
-marker; it is not a live camera feed and does not measure soil moisture. Soil
-moisture remains supplied by the separate Open-Meteo endpoint. Google Earth
-Engine can later add satellite-derived vegetation or land-surface datasets.
+This is optional and should be restricted to approved frontend origins in Google Cloud.
 
-## Security notes for your write-up
+---
 
-- Passwords hashed with bcrypt (via passlib), never stored or logged in plaintext.
-- JWT session tokens, 30-minute expiry by default.
-- RBAC via `require_role()` dependency (available for admin-only endpoints — extend as needed).
-- Coordinate inputs are bounds-checked server-side (India bounding box) via Pydantic `Field` constraints.
-- Audio uploads are checked for extension, magic bytes, size cap (10MB), and path-traversal-safe filenames before processing.
-- Per-IP rate limiting via `slowapi`.
-- CORS is allow-listed, not wildcard, in `config.py`.
+## Security and validation notes
 
-## For the jury / case-study writeup
+The app includes several practical safeguards:
 
-Lead with the honest framing: this demonstrates *how* a multi-modal
-rural credit signal pipeline could be built and audited, using two real
-open data sources (satellite/weather telemetry, speech-emotion
-research), stitched together with a transparent (not black-box) demo
-scoring layer. The natural next step you'd propose to TVS Credit is a
-supervised pilot validating whether the acoustic signal actually
-correlates with repayment outcomes before any of it touches a real
-underwriting decision.
+- bcrypt-based password hashing
+- JWT session tokens
+- role-aware access patterns
+- server-side coordinate validation
+- rate limiting for repeated requests
+- file safety validation for uploaded audio content
+- allow-listed CORS configuration
+
+---
+
+## Honest model disclosure
+
+This project is intentionally transparent about what is real and what is simulated:
+
+| Component | Status |
+|---|---|
+| User authentication and access control | Real |
+| Input validation and rate limiting | Real |
+| Live soil/weather data via Open-Meteo | Real |
+| Audio-based emotion analysis pipeline | Real, when trained data is available |
+| Final credit score and decision | Simulated prototype logic |
+| Emotion-to-repayment hypothesis | Experimental and not established as a production underwriting signal |
+
+The final decision output is built for demonstration and reviewability, not as a production-grade underwriting model. Every assessment includes a clear explanation of how the result was derived.
+
+---
+
+## Demo usage
+
+A typical review flow looks like this:
+
+```text
+Register/Login
+   ↓
+Create applicant
+   ↓
+Fetch field conditions
+   ↓
+Upload audio clip
+   ↓
+Run assessment
+   ↓
+Review explanation and decision brief
+```
+
+---
+
+## Contribution and future direction
+
+This project is a strong foundation for a broader rural credit intelligence platform. Potential next steps include:
+
+- stronger model validation against repayment outcomes
+- richer geospatial and weather features
+- explainable policy tuning for underwriting teams
+- expanded role-based workflows for regional officers and analysts
+- production deployment patterns for cloud hosting and monitoring
+
+---
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
