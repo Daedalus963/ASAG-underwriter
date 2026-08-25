@@ -1,5 +1,6 @@
 // Point this at your running FastAPI backend.
 const API_BASE = window.ASAG_API_BASE || "http://127.0.0.1:8000";
+const GOOGLE_MAPS_API_KEY = window.ASAG_GOOGLE_MAPS_API_KEY || "";
 
 const state = {
   token: localStorage.getItem("asag_token") || null,
@@ -7,6 +8,8 @@ const state = {
   selectedApplicant: null,
   lastAgriData: null,
   lastEmotionData: null,
+  map: null,
+  mapScriptPromise: null,
 };
 
 // ---------- helpers ----------
@@ -140,6 +143,7 @@ document.getElementById("applicant-form").addEventListener("submit", async (e) =
 // ---------- applicant list + workspace ----------
 async function refreshApplicants() {
   state.applicants = await api("/applicants");
+  document.getElementById("applicant-count").textContent = state.applicants.length;
   const list = document.getElementById("applicant-list");
   list.innerHTML = "";
   state.applicants.forEach(a => {
@@ -183,8 +187,21 @@ function renderWorkspace() {
       <div class="data-line"><span>Loan requested</span><span>₹${a.loan_amount_inr ?? "—"}</span></div>
     </div>
 
+    <div class="ws-section location-section">
+      <div class="section-title-row">
+        <div>
+          <h3><span class="step-index">MAP</span> Farm location <span class="source-label">SATELLITE CONTEXT</span></h3>
+          <p class="section-help">Inspect the farm area around the submitted coordinates. Imagery may not be real-time.</p>
+        </div>
+        <a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps/@${a.latitude},${a.longitude},17z/data=!3m1!1e3">Open in Google Maps</a>
+      </div>
+      <div class="map-frame" id="farm-map"><div class="map-loading">Loading satellite context…</div></div>
+      <div class="map-note"><strong>Shows:</strong> Google satellite imagery and the submitted farm point. <strong>Does not show:</strong> live soil moisture. That signal is fetched separately below.</div>
+    </div>
+
     <div class="ws-section">
-      <h3>Step 1 · Live soil telemetry (real, Open-Meteo)</h3>
+      <h3><span class="step-index">01</span> Land conditions <span class="source-label">LIVE · Open-Meteo</span></h3>
+      <p class="section-help">Use the applicant's coordinates to check current soil moisture, temperature, and precipitation.</p>
       <div class="ws-row">
         <button class="btn btn-ghost btn-sm" id="btn-fetch-agri">Fetch live soil data</button>
       </div>
@@ -192,7 +209,8 @@ function renderWorkspace() {
     </div>
 
     <div class="ws-section">
-      <h3>Step 2 · Speech-emotion classifier (real classifier, experimental signal)</h3>
+      <h3><span class="step-index">02</span> Applicant audio <span class="source-label">EXPERIMENTAL SIGNAL</span></h3>
+      <p class="section-help">Upload a short clip to generate an experimental acoustic feature summary.</p>
       <div class="ws-row">
         <input type="file" id="audio-file" accept=".wav,.mp3,.flac,.m4a">
         <button class="btn btn-ghost btn-sm" id="btn-analyze-audio">Analyze clip</button>
@@ -201,7 +219,8 @@ function renderWorkspace() {
     </div>
 
     <div class="ws-section">
-      <h3>Step 3 · Generate demo assessment</h3>
+      <h3><span class="step-index">03</span> Assessment brief <span class="source-label">SIMULATED DECISION</span></h3>
+      <p class="section-help">Combine the available signals into a reviewable, fully explained prototype output.</p>
       <div class="ws-row">
         <button class="btn btn-primary" id="btn-run-assess">Run assessment</button>
       </div>
@@ -212,6 +231,45 @@ function renderWorkspace() {
   document.getElementById("btn-fetch-agri").onclick = fetchAgriData;
   document.getElementById("btn-analyze-audio").onclick = analyzeAudio;
   document.getElementById("btn-run-assess").onclick = runAssessment;
+  loadFarmMap(a);
+}
+
+function loadGoogleMapsScript() {
+  if (window.google?.maps) return Promise.resolve();
+  if (state.mapScriptPromise) return state.mapScriptPromise;
+  if (!GOOGLE_MAPS_API_KEY) return Promise.reject(new Error("Google Maps API key is not configured."));
+
+  state.mapScriptPromise = new Promise((resolve, reject) => {
+    const callbackName = "asagGoogleMapsReady";
+    window[callbackName] = () => {
+      delete window[callbackName];
+      resolve();
+    };
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_API_KEY)}&callback=${callbackName}`;
+    script.async = true;
+    script.defer = true;
+    script.onerror = () => reject(new Error("Google Maps could not be loaded."));
+    document.head.appendChild(script);
+  });
+  return state.mapScriptPromise;
+}
+
+async function loadFarmMap(applicant) {
+  const container = document.getElementById("farm-map");
+  if (!container) return;
+  try {
+    await loadGoogleMapsScript();
+    const position = { lat: applicant.latitude, lng: applicant.longitude };
+    state.map = new google.maps.Map(container, {
+      center: position, zoom: 17, mapTypeId: "satellite",
+      fullscreenControl: true, streetViewControl: false, mapTypeControl: true,
+      gestureHandling: "greedy",
+    });
+    new google.maps.Marker({ map: state.map, position, title: applicant.display_name });
+  } catch (_) {
+    container.innerHTML = `<div class="map-setup"><strong>Satellite view ready to connect</strong><span>Add a browser-restricted Google Maps API key as <code>window.ASAG_GOOGLE_MAPS_API_KEY</code> before <code>app.js</code> to embed imagery here.</span><a target="_blank" rel="noopener" href="https://www.google.com/maps/@${applicant.latitude},${applicant.longitude},17z/data=!3m1!1e3">Open this location in Google Maps satellite view</a></div>`;
+  }
 }
 
 async function fetchAgriData() {

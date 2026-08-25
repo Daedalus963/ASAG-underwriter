@@ -115,11 +115,26 @@
 
       <!-- TAB: Applicants list + assessment workspace -->
       <div class="tab-panel hidden" id="tab-applicants">
-        <h2 class="panel-title">Applicant ledger</h2>
-        <p class="panel-sub">Select an entry to pull live soil telemetry, run the speech-emotion module, and generate a fully-explained demo assessment.</p>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Underwriting workspace</p>
+            <h2 class="panel-title">Decision desk</h2>
+            <p class="panel-sub">Review the applicant, validate field conditions, and generate a transparent assessment brief.</p>
+          </div>
+          <div class="status-chip"><span class="status-dot"></span>Prototype environment</div>
+        </div>
+
+        <div class="workflow-guide" aria-label="Assessment workflow">
+          <div><span>01</span><strong>Review</strong><small>Applicant profile</small></div>
+          <div><span>02</span><strong>Validate</strong><small>Land conditions</small></div>
+          <div><span>03</span><strong>Assess</strong><small>Explain the signal</small></div>
+        </div>
 
         <div class="applicants-layout">
-          <ul id="applicant-list" class="applicant-list"></ul>
+          <aside class="applicant-column">
+            <div class="list-heading"><span>Applicant queue</span><span id="applicant-count">0</span></div>
+            <ul id="applicant-list" class="applicant-list"></ul>
+          </aside>
 
           <div class="workspace" id="workspace">
             <p class="workspace-empty">Select an applicant from the ledger to begin an assessment.</p>
@@ -132,6 +147,7 @@
         <h2 class="panel-title">What this prototype actually does</h2>
         <div class="about-prose">
           <p><strong>Real components:</strong> live soil-moisture / precipitation telemetry from Open-Meteo's public weather API for the entered coordinates, and a genuine acoustic-feature speech-emotion classifier (MFCCs, pitch, energy) trainable on the open RAVDESS dataset.</p>
+          <p><strong>Maps and Earth opportunity:</strong> Google Maps can provide the location, satellite context, boundaries, and navigation layer. Google Earth Engine could add satellite-derived vegetation or land-surface signals. Neither Google Maps nor Google Earth directly measures live soil moisture, so the reliable design is to overlay those map layers with a dedicated sensor or weather/soil API such as Open-Meteo.</p>
           <p><strong>Simulated component:</strong> the final "risk score" and lending decision are produced by a small, fully disclosed rule set built for this hackathon prototype — not a model trained on real repayment outcomes. Every assessment ships with a written explanation of exactly how its number was produced.</p>
           <p><strong>What we're explicit about with the jury:</strong> using speech emotion as a proxy for repayment intent is a proposed, unproven hypothesis, not an established underwriting signal. Presenting it otherwise would be misleading. The honest framing is: "worth piloting and validating," not "solved."</p>
         </div>

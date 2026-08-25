@@ -96,6 +96,21 @@ Open `http://127.0.0.1:5500`. It talks to the backend at
 `window.ASAG_API_BASE` before `app.js` loads if you deploy the backend
 elsewhere.
 
+### Optional Google satellite map
+
+The applicant workspace includes a Google Maps satellite-context panel. To
+embed it, add this before `app.js` in `frontend/index.html`:
+
+```html
+<script>window.ASAG_GOOGLE_MAPS_API_KEY = "YOUR_BROWSER_RESTRICTED_KEY";</script>
+```
+
+Enable the **Maps JavaScript API** in Google Cloud and restrict the key to the
+frontend's allowed origins. The map provides satellite imagery and a farm
+marker; it is not a live camera feed and does not measure soil moisture. Soil
+moisture remains supplied by the separate Open-Meteo endpoint. Google Earth
+Engine can later add satellite-derived vegetation or land-surface datasets.
+
 ## Security notes for your write-up
 
 - Passwords hashed with bcrypt (via passlib), never stored or logged in plaintext.

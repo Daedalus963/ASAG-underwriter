@@ -233,6 +233,17 @@ label .hint { color: var(--text-faint); font-weight: 400; }
   margin: 0 0 28px;
   max-width: 620px;
 }
+.section-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+.section-heading .eyebrow { margin-top: 2px; margin-bottom: 8px; }
+.status-chip, .source-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+.status-chip { color: var(--leaf); border: 1px solid rgba(76,140,123,.35); padding: 7px 10px; white-space: nowrap; }
+.status-dot { display: inline-block; width: 6px; height: 6px; background: var(--leaf); border-radius: 50%; margin-right: 7px; box-shadow: 0 0 0 3px var(--leaf-soft); }
+.workflow-guide { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); margin: 4px 0 28px; }
+.workflow-guide div { padding: 13px 16px; border-right: 1px solid var(--hairline); }
+.workflow-guide div:last-child { border-right: none; }
+.workflow-guide span { color: var(--gold); font: 12px var(--font-mono); margin-right: 10px; }
+.workflow-guide strong { font-size: 13px; }
+.workflow-guide small { display: block; color: var(--text-muted); margin: 3px 0 0 28px; font-size: 12px; }
 
 .ledger-grid {
   display: grid;
@@ -248,6 +259,9 @@ label .hint { color: var(--text-faint); font-weight: 400; }
   grid-template-columns: 300px 1fr;
   gap: 28px;
 }
+.applicant-column { min-width: 0; }
+.list-heading { display: flex; justify-content: space-between; color: var(--text-muted); font: 11px var(--font-mono); text-transform: uppercase; letter-spacing: .08em; padding: 0 0 10px; }
+.list-heading span:last-child { color: var(--gold); }
 .applicant-list { list-style: none; margin: 0; padding: 0; }
 .applicant-item {
   border: 1px solid var(--hairline);
@@ -286,6 +300,18 @@ label .hint { color: var(--text-faint); font-weight: 400; }
   margin: 0 0 12px;
   color: var(--gold);
 }
+.step-index { color: var(--text-faint); font: 12px var(--font-mono); margin-right: 7px; }
+.source-label { color: var(--leaf); margin-left: 8px; font-family: var(--font-mono); }
+.section-help { color: var(--text-muted); font-size: 13px; margin: -4px 0 14px; }
+.section-title-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.map-frame { min-height: 280px; background: #111820; border: 1px solid var(--hairline-strong); overflow: hidden; position: relative; }
+.map-loading, .map-setup { min-height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; }
+.map-setup strong { color: var(--gold); font-family: var(--font-display); font-size: 17px; }
+.map-setup span { max-width: 470px; }
+.map-setup code { color: var(--text); font-family: var(--font-mono); font-size: 11px; }
+.map-setup a { color: var(--leaf); }
+.map-note { color: var(--text-muted); font-size: 12px; line-height: 1.55; margin-top: 10px; }
+.map-note strong { color: var(--text); }
 .ws-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
 .data-line {
   font-family: var(--font-mono);
@@ -356,4 +382,10 @@ label .hint { color: var(--text-faint); font-weight: 400; }
   .rail { display: flex; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--hairline); padding: 10px; }
   .content { padding: 24px 18px; }
   .ledger-grid, .applicants-layout { grid-template-columns: 1fr; }
+  .section-heading { display: block; }
+  .status-chip { display: inline-block; margin-bottom: 18px; }
+  .workflow-guide div { padding: 12px 8px; }
+  .workflow-guide small { margin-left: 0; }
+  .section-title-row { display: block; }
+  .section-title-row .btn { display: inline-block; margin-bottom: 12px; }
 }
