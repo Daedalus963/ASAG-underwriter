@@ -312,6 +312,11 @@ label .hint { color: var(--text-faint); font-weight: 400; }
 .map-setup a { color: var(--leaf); }
 .map-note { color: var(--text-muted); font-size: 12px; line-height: 1.55; margin-top: 10px; }
 .map-note strong { color: var(--text); }
+.map-live-strip { display: flex; align-items: center; gap: 8px; padding: 10px 0 0; color: var(--text-muted); font: 11px var(--font-mono); }
+.map-live-strip strong { color: var(--leaf); font-family: var(--font-body); font-size: 13px; }
+.map-live-strip span:nth-child(3) { flex: 1; }
+.live-indicator { width: 7px; height: 7px; border-radius: 50%; background: var(--leaf); box-shadow: 0 0 0 4px var(--leaf-soft); }
+.map-live-strip .btn { padding: 5px 9px; font-size: 11px; }
 .ws-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
 .data-line {
   font-family: var(--font-mono);

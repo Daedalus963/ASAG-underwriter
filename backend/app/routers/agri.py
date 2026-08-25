@@ -51,6 +51,7 @@ def soil_moisture(
 
     return {
         "source": "open-meteo.com (live)",
+        "observed_at": current.get("time"),
         "coordinates": {"latitude": latitude, "longitude": longitude},
         "soil_moisture_m3_m3": moisture,
         "soil_temperature_c": temp,

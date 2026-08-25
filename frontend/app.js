@@ -10,6 +10,7 @@ const state = {
   lastEmotionData: null,
   map: null,
   mapScriptPromise: null,
+  liveRefreshTimer: null,
 };
 
 // ---------- helpers ----------
@@ -163,11 +164,14 @@ function escapeHtml(s) {
 }
 
 function selectApplicant(applicant) {
+  if (state.liveRefreshTimer) clearInterval(state.liveRefreshTimer);
   state.selectedApplicant = applicant;
   state.lastAgriData = null;
   state.lastEmotionData = null;
   refreshApplicants();
   renderWorkspace();
+  fetchAgriData();
+  state.liveRefreshTimer = setInterval(fetchAgriData, 5 * 60 * 1000);
 }
 
 function renderWorkspace() {
@@ -196,7 +200,8 @@ function renderWorkspace() {
         <a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps/@${a.latitude},${a.longitude},17z/data=!3m1!1e3">Open in Google Maps</a>
       </div>
       <div class="map-frame" id="farm-map"><div class="map-loading">Loading satellite context…</div></div>
-      <div class="map-note"><strong>Shows:</strong> Google satellite imagery and the submitted farm point. <strong>Does not show:</strong> live soil moisture. That signal is fetched separately below.</div>
+      <div class="map-live-strip"><span class="live-indicator"></span><strong>Live field pulse</strong><span id="live-updated">Waiting for observation…</span><button class="btn btn-ghost btn-sm" id="refresh-live-btn">Refresh now</button></div>
+      <div class="map-note"><strong>Shows:</strong> Google satellite imagery and the submitted farm point. <strong>Live layer:</strong> soil moisture, temperature, and precipitation from Open-Meteo.</div>
     </div>
 
     <div class="ws-section">
@@ -232,6 +237,7 @@ function renderWorkspace() {
   document.getElementById("btn-analyze-audio").onclick = analyzeAudio;
   document.getElementById("btn-run-assess").onclick = runAssessment;
   loadFarmMap(a);
+  document.getElementById("refresh-live-btn").onclick = fetchAgriData;
 }
 
 function loadGoogleMapsScript() {
@@ -279,8 +285,11 @@ async function fetchAgriData() {
   try {
     const data = await api(`/agri/soil-moisture?latitude=${a.latitude}&longitude=${a.longitude}`);
     state.lastAgriData = data;
+    const updated = document.getElementById("live-updated");
+    if (updated) updated.textContent = `Observed ${data.observed_at || "just now"} · ${data.source}`;
     box.innerHTML = `
       <div class="data-line"><span>Source</span><span>${data.source}</span></div>
+      <div class="data-line"><span>Observed at</span><span>${data.observed_at || "n/a"}</span></div>
       <div class="data-line"><span>Soil moisture</span><span>${data.soil_moisture_m3_m3 ?? "n/a"} m³/m³</span></div>
       <div class="data-line"><span>Soil temperature</span><span>${data.soil_temperature_c ?? "n/a"} °C</span></div>
       <div class="data-line"><span>Risk flag</span><span>${data.risk_flag}</span></div>
