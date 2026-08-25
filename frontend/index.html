@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASAG-Underwriter — Field Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="contour-bg" aria-hidden="true"></div>
+
+<!-- ============ LOGIN VIEW ============ -->
+<section id="view-login" class="view view-login">
+  <div class="login-card">
+    <div class="login-mark">
+      <span class="login-mark-ring"></span>
+      <span class="login-mark-text">ASAG</span>
+    </div>
+    <p class="eyebrow">TVS Credit E.P.I.C — Field Ledger</p>
+    <h1>Agri-Spatial &amp; Acoustic<br>Graph Underwriter</h1>
+    <p class="lede">A rural credit-assistance prototype. Every score on this ledger is disclosed, explained, and reversible by a human underwriter.</p>
+
+    <form id="login-form" class="ledger-form">
+      <label>Email
+        <input type="email" id="login-email" required placeholder="agent@tvscredit.com" autocomplete="username">
+      </label>
+      <label>Password
+        <input type="password" id="login-password" required placeholder="••••••••••" autocomplete="current-password">
+      </label>
+      <div class="form-row">
+        <button type="submit" class="btn btn-primary">Enter ledger</button>
+        <button type="button" id="show-register" class="btn btn-ghost">Create account</button>
+      </div>
+      <p class="form-msg" id="login-msg" role="status"></p>
+    </form>
+
+    <form id="register-form" class="ledger-form hidden">
+      <label>Email
+        <input type="email" id="register-email" required autocomplete="username">
+      </label>
+      <label>Password <span class="hint">min. 10 characters</span>
+        <input type="password" id="register-password" required minlength="10" autocomplete="new-password">
+      </label>
+      <label>Role
+        <select id="register-role">
+          <option value="field_agent">Field Agent</option>
+          <option value="underwriter_admin">Underwriter Admin</option>
+        </select>
+      </label>
+      <div class="form-row">
+        <button type="submit" class="btn btn-primary">Register</button>
+        <button type="button" id="show-login" class="btn btn-ghost">Back to sign in</button>
+      </div>
+      <p class="form-msg" id="register-msg" role="status"></p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ DASHBOARD VIEW ============ -->
+<section id="view-dashboard" class="view view-dashboard hidden">
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-mark">ASAG</span>
+      <span class="brand-sub">Field Ledger</span>
+    </div>
+    <div class="topbar-right">
+      <span id="whoami" class="whoami"></span>
+      <button id="logout-btn" class="btn btn-ghost btn-sm">Sign out</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Left rail: tab index -->
+    <nav class="rail">
+      <button class="rail-tab active" data-tab="new">01 · New entry</button>
+      <button class="rail-tab" data-tab="applicants">02 · Applicants</button>
+      <button class="rail-tab" data-tab="about">03 · About this demo</button>
+    </nav>
+
+    <main class="content">
+
+      <!-- TAB: New entry -->
+      <div class="tab-panel" id="tab-new">
+        <h2 class="panel-title">New applicant entry</h2>
+        <p class="panel-sub">Coordinates must fall within India's bounding box. All fields are validated server-side.</p>
+
+        <form id="applicant-form" class="ledger-grid">
+          <label>Applicant name
+            <input type="text" id="f-name" required placeholder="e.g. Ramesh K.">
+          </label>
+          <label>Latitude
+            <input type="number" step="any" id="f-lat" required placeholder="12.9716">
+          </label>
+          <label>Longitude
+            <input type="number" step="any" id="f-lon" required placeholder="77.5946">
+          </label>
+          <label>Crop type
+            <input type="text" id="f-crop" placeholder="Sugarcane">
+          </label>
+          <label>Farm size (acres)
+            <input type="number" step="any" id="f-acres" placeholder="3.5">
+          </label>
+          <label>Loan requested (INR)
+            <input type="number" step="any" id="f-loan" placeholder="200000">
+          </label>
+          <div class="form-row full-row">
+            <button type="submit" class="btn btn-primary">Save applicant</button>
+          </div>
+          <p class="form-msg" id="applicant-msg"></p>
+        </form>
+      </div>
+
+      <!-- TAB: Applicants list + assessment workspace -->
+      <div class="tab-panel hidden" id="tab-applicants">
+        <h2 class="panel-title">Applicant ledger</h2>
+        <p class="panel-sub">Select an entry to pull live soil telemetry, run the speech-emotion module, and generate a fully-explained demo assessment.</p>
+
+        <div class="applicants-layout">
+          <ul id="applicant-list" class="applicant-list"></ul>
+
+          <div class="workspace" id="workspace">
+            <p class="workspace-empty">Select an applicant from the ledger to begin an assessment.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: About -->
+      <div class="tab-panel hidden" id="tab-about">
+        <h2 class="panel-title">What this prototype actually does</h2>
+        <div class="about-prose">
+          <p><strong>Real components:</strong> live soil-moisture / precipitation telemetry from Open-Meteo's public weather API for the entered coordinates, and a genuine acoustic-feature speech-emotion classifier (MFCCs, pitch, energy) trainable on the open RAVDESS dataset.</p>
+          <p><strong>Simulated component:</strong> the final "risk score" and lending decision are produced by a small, fully disclosed rule set built for this hackathon prototype — not a model trained on real repayment outcomes. Every assessment ships with a written explanation of exactly how its number was produced.</p>
+          <p><strong>What we're explicit about with the jury:</strong> using speech emotion as a proxy for repayment intent is a proposed, unproven hypothesis, not an established underwriting signal. Presenting it otherwise would be misleading. The honest framing is: "worth piloting and validating," not "solved."</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>
